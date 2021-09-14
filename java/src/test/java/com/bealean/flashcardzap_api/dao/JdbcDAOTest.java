@@ -4,19 +4,16 @@ import com.bealean.flashcardzap_api.FlashcardZapApiApplication;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Objects;
 
 @SpringBootTest(classes = FlashcardZapApiApplication.class)
-public class JdbcDAOTest {
+public abstract class JdbcDAOTest {
 
     @Value("${spring.datasource.url}")
     private String url;
@@ -45,7 +42,7 @@ public class JdbcDAOTest {
     }
 
     @AfterAll
-    public static void destroyDataSourceAndSetDBConfigFlagFalse() {
+    static void destroyDataSourceAndSetDBConfigFlagFalse() {
         dataSource.destroy();
         isDatabaseConfigured = false;
     }
@@ -57,22 +54,19 @@ public class JdbcDAOTest {
 
     long addArea(String areaName) {
         String sql = "INSERT INTO areas (area_name) VALUES (?) RETURNING id";
-        Long result = -1L;
-        result = jdbcTemplate.queryForObject(sql, Long.class, areaName);
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, areaName);
         return Objects.requireNonNullElse(result, -1L);
     }
 
     long addCategory(String categoryName) {
         String sql = "INSERT INTO categories (category_name) VALUES (?) RETURNING id";
-        Long result = -1L;
-        result = jdbcTemplate.queryForObject(sql, Long.class, categoryName);
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, categoryName);
         return Objects.requireNonNullElse(result, -1L);
     }
 
     long addSubcategory(String subcategoryName) {
         String sql = "INSERT INTO subcategories (subcategory_name) VALUES (?) RETURNING id";
-        Long result = -1L;
-        result = jdbcTemplate.queryForObject(sql, Long.class, subcategoryName);
+        Long result =  jdbcTemplate.queryForObject(sql, Long.class, subcategoryName);
         return Objects.requireNonNullElse(result, -1L);
     }
 

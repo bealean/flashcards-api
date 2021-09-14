@@ -122,8 +122,7 @@ class JdbcAreaDAOTest extends JdbcDAOTest {
 
     @Test
     void getAreaIdByName_badDataSourceURL_throwsException() {
-        dataSource.destroy();
-        isDatabaseConfigured = false;
+        destroyDataSourceAndSetDBConfigFlagFalse();
         configureDatabase();
         dataSource.setUrl("badUrl");
         Exception exception = assertThrows(ResponseStatusException.class,
@@ -133,8 +132,7 @@ class JdbcAreaDAOTest extends JdbcDAOTest {
         String actualMessage = exception.getMessage();
         assertEquals(expectedMessage, actualMessage,
                 "getAreaIdByName throws exception with expected status and message if query to retrieve ID fails");
-        dataSource.destroy();
-        isDatabaseConfigured = false;
+        destroyDataSourceAndSetDBConfigFlagFalse();
         configureDatabase();
     }
 
