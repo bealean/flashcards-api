@@ -9,7 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JdbcFlashcardDAOTest extends JdbcDAOTest {
+class JdbcFlashcardDAOAddFlashcardTest extends JdbcDAOTest {
 
     private static FlashcardDAO flashcardDAO;
 
@@ -60,7 +60,7 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     @Test
     void addFlashcard_duplicateCardRequiredFieldsOnly_returnsExistingCardAndDoesNotAddNewCard() {
         Flashcard expectedFlashcard = getCardWithRequiredFields();
-        expectedFlashcard = flashcardDAO.addFlashcard(expectedFlashcard);
+        expectedFlashcard = addFlashcard(expectedFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard actualFlashcard = getCardWithRequiredFields();
         actualFlashcard = flashcardDAO.addFlashcard(actualFlashcard);
@@ -75,7 +75,8 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     void addFlashcard_notDuplicateCardNewCardNullArea_returnsNewCardAndAddsNewCard() {
         Flashcard existingFlashcard = getCardWithRequiredFields();
         existingFlashcard.setArea("Junit Area");
-        flashcardDAO.addFlashcard(existingFlashcard);
+        addArea("Junit Area");
+        addFlashcard(existingFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard newFlashcard = getCardWithRequiredFields();
         newFlashcard = flashcardDAO.addFlashcard(newFlashcard);
@@ -91,7 +92,8 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     void addFlashcard_notDuplicateCardNewCardDifferentArea_returnsNewCardAndAddsNewCard() {
         Flashcard existingFlashcard = getCardWithRequiredFields();
         existingFlashcard.setArea("Junit Area");
-        flashcardDAO.addFlashcard(existingFlashcard);
+        addArea("Junit Area");
+        addFlashcard(existingFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard newFlashcard = getCardWithRequiredFields();
         newFlashcard.setArea("JUnit New Area");
@@ -108,8 +110,10 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     void addFlashcard_notDuplicateCardNewCardNullCategory_returnsNewCardAndAddsNewCard() {
         Flashcard existingFlashcard = getCardWithRequiredFields();
         existingFlashcard.setArea("JUnit Area");
+        addArea("JUnit Area");
         existingFlashcard.setCategory("Junit Category");
-        flashcardDAO.addFlashcard(existingFlashcard);
+        addCategory("Junit Category");
+        addFlashcard(existingFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard newFlashcard = getCardWithRequiredFields();
         newFlashcard.setArea("JUnit Area");
@@ -126,8 +130,10 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     void addFlashcard_notDuplicateCardNewCardDifferentCategory_returnsNewCardAndAddsNewCard() {
         Flashcard existingFlashcard = getCardWithRequiredFields();
         existingFlashcard.setArea("JUnit Area");
+        addArea("JUnit Area");
         existingFlashcard.setCategory("Junit Category");
-        flashcardDAO.addFlashcard(existingFlashcard);
+        addCategory("Junit Category");
+        addFlashcard(existingFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard newFlashcard = getCardWithRequiredFields();
         newFlashcard.setArea("JUnit Area");
@@ -144,7 +150,10 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     @Test
     void addFlashcard_notDuplicateCardNewCardNullSubategory_returnsNewCardAndAddsNewCard() {
         Flashcard existingFlashcard = getCardWithAllUserDefinedFields();
-        flashcardDAO.addFlashcard(existingFlashcard);
+        addArea(existingFlashcard.getArea());
+        addCategory(existingFlashcard.getCategory());
+        addSubcategory(existingFlashcard.getSubcategory());
+        addFlashcard(existingFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard newFlashcard = getCardWithAllUserDefinedFields();
         newFlashcard.setSubcategory(null);
@@ -160,7 +169,10 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     @Test
     void addFlashcard_notDuplicateCardNewCardDifferentSubategory_returnsNewCardAndAddsNewCard() {
         Flashcard existingFlashcard = getCardWithAllUserDefinedFields();
-        flashcardDAO.addFlashcard(existingFlashcard);
+        addArea(existingFlashcard.getArea());
+        addCategory(existingFlashcard.getCategory());
+        addSubcategory(existingFlashcard.getSubcategory());
+        addFlashcard(existingFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard newFlashcard = getCardWithAllUserDefinedFields();
         newFlashcard.setSubcategory("JUnit New Subcategory");
@@ -179,7 +191,7 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
         addArea(expectedFlashcard.getArea());
         addCategory(expectedFlashcard.getCategory());
         addSubcategory(expectedFlashcard.getSubcategory());
-        expectedFlashcard = flashcardDAO.addFlashcard(expectedFlashcard);
+        expectedFlashcard = addFlashcard(expectedFlashcard);
         Integer expectedCount = getFlashcardCount();
         Flashcard actualFlashcard = getCardWithAllUserDefinedFields();
         actualFlashcard = flashcardDAO.addFlashcard(actualFlashcard);
@@ -193,7 +205,7 @@ class JdbcFlashcardDAOTest extends JdbcDAOTest {
     @Test
     void addFlashcard_duplicateCardBadURL_throwsException() {
         Flashcard expectedFlashcard = getCardWithRequiredFields();
-        flashcardDAO.addFlashcard(expectedFlashcard);
+        addFlashcard(expectedFlashcard);
         Flashcard actualFlashcard = getCardWithRequiredFields();
         destroyDataSourceAndSetDBConfigFlagFalse();
         configureDatabase();

@@ -1,6 +1,7 @@
 package com.bealean.flashcardzap_api.dao;
 
 import com.bealean.flashcardzap_api.FlashcardZapApiApplication;
+import com.bealean.flashcardzap_api.model.Flashcard;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +67,7 @@ public abstract class JdbcDAOTest {
 
     long addSubcategory(String subcategoryName) {
         String sql = "INSERT INTO subcategories (subcategory_name) VALUES (?) RETURNING id";
-        Long result =  jdbcTemplate.queryForObject(sql, Long.class, subcategoryName);
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, subcategoryName);
         return Objects.requireNonNullElse(result, -1L);
     }
 
@@ -80,6 +81,41 @@ public abstract class JdbcDAOTest {
         long categoryId = addCategory(categoryName);
         String sql = "INSERT INTO area_category_subcategory (area_id, category_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, areaId, categoryId);
+    }
+
+    Long getAreaIdByName(String areaName) {
+        String sql = "SELECT id FROM areas WHERE area_name = ?";
+        return jdbcTemplate.queryForObject(sql, Long.class, areaName);
+    }
+
+    Long getCategoryIdByName(String categoryName) {
+        String sql = "SELECT id FROM categories WHERE category_name = ?";
+        return jdbcTemplate.queryForObject(sql, Long.class, categoryName);
+    }
+
+    Long getSubcategoryIdByName(String subcategoryName) {
+        String sql = "SELECT id FROM subcategories WHERE subcategory_name = ?";
+        return jdbcTemplate.queryForObject(sql, Long.class, subcategoryName);
+    }
+
+    Flashcard addFlashcard(Flashcard flashcard) {
+        Long areaId = null;
+        if (flashcard.getArea() != null) {
+            areaId = getAreaIdByName(flashcard.getArea());
+        }
+        Long categoryId = null;
+        if (flashcard.getCategory() != null) {
+            categoryId = getCategoryIdByName(flashcard.getCategory());
+        }
+        Long subcategoryId = null;
+        if (flashcard.getSubcategory() != null) {
+            subcategoryId = getSubcategoryIdByName(flashcard.getSubcategory());
+        }
+        String sql = "INSERT INTO flashcards (front, back, area_id, category_id, subcategory_id) VALUES (?,?,?,?,?) RETURNING id";
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, flashcard.getFront(),
+                flashcard.getBack(), areaId, categoryId, subcategoryId);
+        flashcard.setId(result);
+        return flashcard;
     }
 
 }
