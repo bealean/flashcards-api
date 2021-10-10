@@ -1,7 +1,13 @@
+-- DBVisualizer Free doesn't support function creation, so run from another tool such as pgAdmin.
+
 BEGIN TRANSACTION;
 
+DROP TRIGGER IF EXISTS ins_flashcard_last_view ON flashcard_last_view;
+DROP TRIGGER IF EXISTS upd_flashcard_last_view ON flashcard_last_view;
 DROP TABLE IF EXISTS flashcard_views;
 DROP SEQUENCE IF EXISTS seq_flashcard_views_id;
+DROP TABLE IF EXISTS flashcard_last_view;
+DROP SEQUENCE IF EXISTS seq_flashcard_last_view_id;
 DROP TABLE IF EXISTS area_category_subcategory;
 DROP TABLE IF EXISTS flashcards;
 DROP SEQUENCE IF EXISTS seq_flashcards_id;
@@ -37,6 +43,12 @@ CREATE SEQUENCE seq_flashcards_id
   CACHE 1;
 
 CREATE SEQUENCE seq_flashcard_views_id
+  INCREMENT BY 1
+  NO MAXVALUE
+  NO MINVALUE
+  CACHE 1;
+
+CREATE SEQUENCE seq_flashcard_last_view_id
   INCREMENT BY 1
   NO MAXVALUE
   NO MINVALUE
@@ -87,6 +99,17 @@ CREATE TABLE flashcards (
 CREATE INDEX ix_fk_flashcards_category ON flashcards(category_id);
 CREATE INDEX ix_fk_flashcards_subcategory ON flashcards(subcategory_id);
 
+-- User ID column can be added later, if needed
+CREATE TABLE flashcard_last_view (
+    id bigint DEFAULT nextval('seq_flashcard_last_view_id'::regclass) NOT NULL,
+    flashcard_id bigint NOT NULL,
+    view_timestamp timestamp with time zone NOT NULL,
+    CONSTRAINT pk_flashcard_last_view PRIMARY KEY (id),
+    CONSTRAINT flashcard_last_view_flashcard_id UNIQUE (flashcard_id),
+    CONSTRAINT fk_flashcard_last_view_flashcard FOREIGN KEY (flashcard_id) REFERENCES flashcards (id)
+);
+    CREATE INDEX ix_fk_flashcard_last_view_flashcard ON flashcard_last_view(flashcard_id);
+
 CREATE TABLE flashcard_views (
     id bigint DEFAULT nextval('seq_flashcard_views_id'::regclass) NOT NULL,
     flashcard_id bigint NOT NULL,
@@ -97,5 +120,27 @@ CREATE TABLE flashcard_views (
 
     CREATE INDEX ix_fk_flashcard_views_flashcard ON flashcard_views(flashcard_id);
     CREATE INDEX ix_flashcard_views_view_timestamp ON flashcard_views(view_timestamp);
+
+-- Add Triggers to insert a record into flashcard_views when a record is inserted or updated in flashcard_last_view
+-- flashcard_last_view has only the last view for a card (and possibly user at some point)
+-- flashcard_views has a record of each view for possible use in reporting at some point
+
+CREATE OR REPLACE FUNCTION flashcard_last_view_trigger_function() RETURNS TRIGGER AS $flashcard_views$
+BEGIN
+INSERT INTO flashcard_views (flashcard_id, view_timestamp) 
+  SELECT flashcard_id, view_timestamp FROM new_table; 
+RETURN NULL;
+END;
+$flashcard_views$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ins_flashcard_last_view 
+AFTER INSERT ON flashcard_last_view 
+REFERENCING NEW TABLE AS new_table
+EXECUTE FUNCTION flashcard_last_view_trigger_function();
+
+CREATE TRIGGER upd_flashcard_last_view 
+AFTER UPDATE ON flashcard_last_view 
+REFERENCING NEW TABLE AS new_table
+EXECUTE FUNCTION flashcard_last_view_trigger_function();
 
 COMMIT TRANSACTION;

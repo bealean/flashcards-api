@@ -32,6 +32,25 @@ Java API uses:
 - NamedParameterJdbcTemplate is used with a Map of parameters instead of JdbcTemplate to improve readability in WHERE clauses handling variable values that could have a value or could be NULL.
 - NamedParameterJdbcTemplate is also used where different queries with different numbers of parameters are executed conditionally.
 
+#### Recording Views
+
+- The flashcard_last_view table includes the most recent view Timestamp for each card. The most recent view of cards is accessed frequently in deciding which card to display next. Insert and Update triggers on that table populate the flashcard_views table, which stores all card views for reporting. 
+- Both triggers call the same predefined trigger function. The schema.sql script must be run from a tool that supports function creation, such as pgAdmin (DBVisualizer Free does not support function creation).
+- When recording Timestamps in the database, the PostgreSQL clock_timestamp() function is used to return the current timestamp, rather than the now() function, which returns the timestamp for the start of the transaction.  The update test executes multiple statements in a single transaction and compares the Timestamps of different records, so the now() function could not be used in that case.
+- Tests were originally checking database Timestamps against a Timestamp created with "new Timestamp(System.currentTimeMillis())", but there were intermittent false failures due to slight discrepancies between the Timestamps. Tests were updated to use the PostgreSQL clock_timestamp() function instead.
+
+#### Import Utility
+
+- Internal ImportUtility available in the "utility" folder. It reads cards from a CSV and adds the cards to the database.
+- CSV should have a a header row of any format and data rows with six comma separated fields with each field enclosed in double quotes:
+    1. Integer representing row number,
+    2. Card Front String,
+    3. Card Back String,
+    4. Card Area String,
+    5. Card Category String,
+    6. Card Subcategory String
+- Any double quote within the Front or Back fields should be represented by two double quotes. Double quotes are not allowed within the other fields.
+
 #### Tests
 
 A Test Driven Development approach was used for this project. The tests for this project use JUnit 5. 

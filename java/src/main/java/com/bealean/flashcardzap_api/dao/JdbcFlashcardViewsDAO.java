@@ -18,26 +18,35 @@ public class JdbcFlashcardViewsDAO implements FlashcardViewsDAO {
     @Override
     public int recordView(Long id) {
         /* Check if flashcard exists with provided ID before attempting to record
-        a view for it. */
-        String sql = "SELECT COUNT(*) FROM flashcards WHERE id = ?";
+         * a view for it. TODO: Update to use Flashcard get method, when available. */
+        String cardSql = "SELECT COUNT(*) FROM flashcards WHERE id = ?";
+
+        /* Check if card has been viewed or not. */
+        String viewSql = "SELECT COUNT(*) FROM flashcard_last_view WHERE flashcard_id = ?";
+        Integer viewCount;
+
+        String recordViewSQL = "";
         try {
-            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+            Integer count = jdbcTemplate.queryForObject(cardSql, Integer.class, id);
             if (count == null || !count.equals(1)) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Provided Flashcard ID not found. View not recorded for Flashcard.");
             }
+            viewCount = jdbcTemplate.queryForObject(viewSql, Integer.class, id);
+            if (viewCount != null && viewCount.equals(0)) {
+                /* Used clock_timestamp() instead of now() because now() is the timestamp for the
+                 * start of the transaction, rather than the current time and tests can have
+                 * multiple statements in the same transaction (e.g. and update test may do insert
+                 * first, then update, and then compare timestamps). */
+                recordViewSQL = "INSERT INTO flashcard_last_view (flashcard_id, view_timestamp) VALUES (?, clock_timestamp())";
+            } else if (viewCount != null && viewCount.compareTo(0) > 0) {
+                recordViewSQL = "UPDATE flashcard_last_view SET view_timestamp = clock_timestamp() WHERE flashcard_id = ?";
+            }
+            return jdbcTemplate.update(recordViewSQL, id);
         } catch (DataAccessException e) {
             System.out.println("Caught Exception: " + e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "View not recorded for Flashcard. Check for existence of Flashcard failed.");
-        }
-        sql = "INSERT INTO flashcard_views (flashcard_id, view_timestamp) VALUES (?, now())";
-        try {
-            return jdbcTemplate.update(sql, id);
-        } catch (DataAccessException e) {
-            System.out.println("Caught Exception: " + e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "View Date and Time failed to be recorded.");
+                    "Flashcard view failed to be recorded.");
         }
     }
 }
