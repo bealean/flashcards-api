@@ -36,12 +36,13 @@ Java API uses:
 
 - The flashcard_last_view table includes the most recent view Timestamp for each card. The most recent view of cards is accessed frequently in deciding which card to display next. Insert and Update triggers on that table populate the flashcard_views table, which stores all card views for reporting. 
 - Both triggers call the same predefined trigger function. The schema.sql script must be run from a tool that supports function creation, such as pgAdmin (DBVisualizer Free does not support function creation).
-- When recording Timestamps in the database, the PostgreSQL clock_timestamp() function is used to return the current timestamp, rather than the now() function, which returns the timestamp for the start of the transaction.  The update test executes multiple statements in a single transaction and compares the Timestamps of different records, so the now() function could not be used in that case.
+- When recording Timestamps in the database, the PostgreSQL clock_timestamp() function is used to return the current timestamp, rather than the now() function, which returns the timestamp for the start of the transaction.  The update tests execute multiple statements in a single transaction and compare the Timestamps of different records, so the now() function could not be used in those cases.
 - Tests were originally checking database Timestamps against a Timestamp created with "new Timestamp(System.currentTimeMillis())", but there were intermittent false failures due to slight discrepancies between the Timestamps. Tests were updated to use the PostgreSQL clock_timestamp() function instead.
 
 #### Import Utility
 
 - Internal ImportUtility available in the "utility" folder. It reads cards from a CSV and adds the cards to the database.
+- Utility prompts for the path and name of the input file.
 - CSV should have a a header row of any format and data rows with six comma separated fields with each field enclosed in double quotes:
     1. Integer representing row number,
     2. Card Front String,
@@ -49,7 +50,11 @@ Java API uses:
     4. Card Area String,
     5. Card Category String,
     6. Card Subcategory String
-- Any double quote within the Front or Back fields should be represented by two double quotes. Double quotes are not allowed within the other fields.
+- Any double quote within the Front or Back fields should be represented by two double quotes. The API does not allow double quotes within the other fields.
+- Line breaks and blank lines within Front and Back fields are supported.
+- The expected field delimiter is double quote, comma, double quote (",").
+- The regex pattern for splitting the lines of the csv into fields only matches the delimiter if it is not preceded by a double quote, or if it is preceded by an even number of double quotes,  because any double quotes within the fields will be duplicated. 
+- Negative Lookbehind is used to check the characters before the delimiter. To limit memory consumption, the upper limit for matching preceding sets of double quotes is specified as 2 sets (or 4 preceding double quotes). This is adjustable with the LOOKBEHIND_QUOTE_PAIRS_UPPER_LIMIT constant.
 
 #### Tests
 

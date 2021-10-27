@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -25,6 +26,7 @@ public class ImportUtility {
 
     private void importFlashcards(String csv) {
         final int EXPECTED_FIELD_COUNT = 6;
+        final int LOOKBEHIND_QUOTE_PAIRS_UPPER_LIMIT = 2;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -36,19 +38,21 @@ public class ImportUtility {
                 scanner.nextLine();
             }
             while (scanner.hasNext()) {
-                Pattern pattern = Pattern.compile("((?<!\")\",\"|((?<=(?<!\")\"\")\",\")|((?<=(?<!\")\"\"\"\")\",\"))");
-                /* Pattern matches the expected delimiter of: ","
-                * Each field in the CSV is enclosed in double quotes and the fields are separated by commas.
-                * Within fields any double quotes are represented by a pair of double quotes.
-                *
-                * "Field 1","Field 2 contains comma separated quoted words ""quoted word"",""another word""","Field 3"
-                *
-                * Only split where "," is not preceded by a double quote, or where it is preceded by an even number of double quotes.
-                * Used Negative Lookbehind to check characters before "," without capturing them.
-                * Specified separate cases because lookbehind needs to be fixed-length in Java.
-                * 1. "," is preceded by a character other than a quote.
-                * 2. "," is preceded by two quotes, preceded by a character other than a quote.
-                * 3. "," is preceded by four quotes, preceded by a character other than a quote. */
+                Pattern pattern = Pattern.compile("((?<!\")\",\"|((?<=(?<!\")(\"\"){1," + LOOKBEHIND_QUOTE_PAIRS_UPPER_LIMIT + "})\",\"))");
+                /* Pattern matches the expected delimiter of double quote, comma, double quote (",").
+                 * Each field in the CSV is enclosed in double quotes and the fields are separated by commas.
+                 * Within fields any double quotes are represented by a pair of double quotes. For example:
+                 *
+                 * "Field 1","Field 2 contains comma separated quoted words ""quoted word"",""another word""","Field 3"
+                 *
+                 * Regex pattern only matches the delimiter (",") if it is not preceded by a double quote,
+                 * or if it is preceded by an even number of double quotes.
+                 *
+                 * Negative Lookbehind checks characters before the delimiter (",") without capturing them, for two cases:
+                 * 1. "," is preceded by a character other than a quote ((?<!")",").
+                 * 2. "," is preceded by a multiple of two double quotes, preceded by a character other than a double quote ((?<=(?<!")(""){1,LOOKBEHIND_QUOTE_PAIRS_UPPER_LIMIT})",").
+                 * The upper limit for the sets of double quotes is specified with the LOOKBEHIND_QUOTE_PAIRS_UPPER_LIMIT constant to limit memory consumption.
+                 * For example, if the limit is set to 2, there will be a match if the delimiter is preceded by an even number of double quotes up to 4 double quotes. */
 
                 String flashcardLine = scanner.nextLine();
                 String[] flashcardFields = pattern.split(flashcardLine);
@@ -81,10 +85,13 @@ public class ImportUtility {
                         fieldCount = pattern.split(flashcardLines).length;
                     }
                     flashcardFields = pattern.split(flashcardLines);
+                    if (flashcardFields.length > EXPECTED_FIELD_COUNT) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card has more fields than expected. Check field delimiters");
+                    }
                 }
                 /* CSV has two double quotes for every double quote within the Front and Back fields,
-                * so replace two consecutive double quotes with one double quote.
-                * Double quotes not allowed for other fields. */
+                 * so replace two consecutive double quotes with one double quote.
+                 * Double quotes not allowed for other fields. */
                 String front = flashcardFields[1].replaceAll("\"\"", "\"");
                 String back = flashcardFields[2].replaceAll("\"\"", "\"");
                 Flashcard flashcard = new Flashcard();
