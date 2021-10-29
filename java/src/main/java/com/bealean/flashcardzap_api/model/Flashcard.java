@@ -1,5 +1,7 @@
 package com.bealean.flashcardzap_api.model;
 
+import com.bealean.flashcardzap_api.utility.InputScrubber;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -71,27 +73,15 @@ public class Flashcard {
     }
 
     public void setArea(String area) {
-        if (area != null && area.trim().equals("")) {
-            this.area = null;
-        } else {
-            this.area = area;
-        }
+        this.area = InputScrubber.trimStringAndSetEmptyToNull(area);
     }
 
     public void setCategory(String category) {
-        if (category != null && category.trim().equals("")) {
-            this.category = null;
-        } else {
-            this.category = category;
-        }
+        this.category = InputScrubber.trimStringAndSetEmptyToNull(category);
     }
 
     public void setSubcategory(String subcategory) {
-        if (subcategory != null && subcategory.trim().equals("")) {
-            this.subcategory = null;
-        } else {
-            this.subcategory = subcategory;
-        }
+        this.subcategory = InputScrubber.trimStringAndSetEmptyToNull(subcategory);
     }
 
     public void setLastViewed(Timestamp lastViewed) {

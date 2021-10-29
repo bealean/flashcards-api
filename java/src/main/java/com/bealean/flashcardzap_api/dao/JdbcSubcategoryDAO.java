@@ -1,5 +1,6 @@
 package com.bealean.flashcardzap_api.dao;
 
+import com.bealean.flashcardzap_api.utility.InputScrubber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -31,21 +32,24 @@ public class JdbcSubcategoryDAO implements SubcategoryDAO {
 
     @Override
     public long getSubcategoryIdByName(String subcategoryName) {
-        Long subcategoryId;
+        subcategoryName = InputScrubber.trimStringAndSetEmptyToNull(subcategoryName);
+
+        Long subcategoryId = null;
 
         /* Use COALESCE to return a value, if name not found,
            so there won't be an exception from queryForObject
            when this method is used to check if a subcategory exists or not. */
         String sql = "SELECT COALESCE(MAX(id),-1) FROM subcategories WHERE subcategory_name = ?";
-
-        try {
-            subcategoryId = jdbcTemplate.queryForObject(sql, Long.class, subcategoryName);
-        } catch (DataAccessException e) {
-            e.printStackTrace();
+        if (subcategoryName != null) {
+            try {
+                subcategoryId = jdbcTemplate.queryForObject(sql, Long.class, subcategoryName);
+            } catch (DataAccessException e) {
+                e.printStackTrace();
             /* Don't return -1 if the query failed, because the Subcategory could exist,
                   but an error may have been encountered in retrieving it. */
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Exception checking for Subcategory in database.");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Exception checking for Subcategory in database.");
+            }
         }
         return Objects.requireNonNullElse(subcategoryId, -1L);
     }
@@ -57,6 +61,9 @@ public class JdbcSubcategoryDAO implements SubcategoryDAO {
         String sql;
         Long categoryId = null;
         Long areaId = null;
+
+        areaName = InputScrubber.trimStringAndSetEmptyToNull(areaName);
+        categoryName = InputScrubber.trimStringAndSetEmptyToNull(categoryName);
 
         if (areaName == null || categoryName == null) {
             if (areaName == null && categoryName == null) {
@@ -74,10 +81,10 @@ public class JdbcSubcategoryDAO implements SubcategoryDAO {
             }
 
         }
-        if (categoryName.trim().equalsIgnoreCase("all")) {
+        if (categoryName.equalsIgnoreCase("all")) {
             categoryName = "all";
         }
-        if (areaName.trim().equalsIgnoreCase("all")) {
+        if (areaName.equalsIgnoreCase("all")) {
             areaName = "all";
         }
         if (!categoryName.equals("all")) {
@@ -135,7 +142,8 @@ public class JdbcSubcategoryDAO implements SubcategoryDAO {
 
     @Override
     public long addSubcategory(String subcategoryName) {
-        if (subcategoryName == null || subcategoryName.trim().equals("")) {
+        subcategoryName = InputScrubber.trimStringAndSetEmptyToNull(subcategoryName);
+        if (subcategoryName == null) {
             return -1L;
         }
         Long subcategoryId = getSubcategoryIdByName(subcategoryName);

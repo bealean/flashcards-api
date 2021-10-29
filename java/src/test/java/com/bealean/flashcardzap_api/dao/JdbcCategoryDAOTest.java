@@ -46,7 +46,7 @@ class JdbcCategoryDAOTest extends JdbcDAOTest {
     }
 
     @Test
-    void getCategoriesForArea_allAreasMulitpleCategoriesExist_returnsCategoriesInAscendingAlphabeticalOrderByName() {
+    void getCategoriesForArea_allAreasMultipleCategoriesExist_returnsCategoriesInAscendingAlphabeticalOrderByName() {
         addCategory("A JUnit Category");
         addCategory("another JUnit Category");
         addCategory("Z JUnit Category");
@@ -90,6 +90,15 @@ class JdbcCategoryDAOTest extends JdbcDAOTest {
         addAreaAndCategoryAndAssociate(areaName1, categoryName1);
         assertTrue(isCategoryReturnedByGetCategoriesForArea(areaName1, categoryName1),
                 "getCategoriesForArea returns list containing Category in Area");
+    }
+
+    @Test
+    void getCategoriesForArea_spaceAroundSpecificAreaName_returnsListContainingCategoryAddedToTrimmedAreaName() {
+        String areaName1 = " JUnitArea1 ";
+        String categoryName1 = "JUnitCategory1";
+        addAreaAndCategoryAndAssociate(areaName1.trim(), categoryName1);
+        assertTrue(isCategoryReturnedByGetCategoriesForArea(areaName1, categoryName1),
+                "getCategoriesForArea called with space around Area name returns list containing Category for trimmed Area name");
     }
 
     @Test
@@ -217,6 +226,14 @@ class JdbcCategoryDAOTest extends JdbcDAOTest {
     }
 
     @Test
+    void addCategory_spaceAroundName_trimmedNameAddedToDatabase() {
+        String untrimmedCategoryName = " JUnitCategory ";
+        String actualCategoryName = addCategoryAndReturnNameFromDatabase(untrimmedCategoryName);
+        String expectedCategoryName = untrimmedCategoryName.trim();
+        assertEquals(expectedCategoryName, actualCategoryName, "addCategory adds trimmed Category name to database");
+    }
+
+    @Test
     void addCategory_duplicateName_returnsExistingIdAndCategoryNotAddedToDatabase() {
         String categoryName = "JUnit Test Category";
         long expectedCategoryId = categoryDAO.addCategory(categoryName);
@@ -277,6 +294,15 @@ class JdbcCategoryDAOTest extends JdbcDAOTest {
         assertEquals(expectedId, actualId,
                 "getCategoryIdByName returns the expected id for a Category name " +
                         "including all allowed special characters");
+    }
+
+    @Test
+    void getCategoryIdByName_spaceAroundName_returnsIdForTrimmedName() {
+        String categoryName = " JUnitCategory ";
+        long expectedId = addCategory(categoryName.trim());
+        long actualId = categoryDAO.getCategoryIdByName(categoryName);
+        assertEquals(expectedId, actualId,
+                "getCategoryIdByName returns the id for the trimmed Category name");
     }
 
     @Test

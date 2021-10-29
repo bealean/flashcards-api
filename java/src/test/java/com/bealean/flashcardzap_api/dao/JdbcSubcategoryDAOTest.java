@@ -1,6 +1,5 @@
 package com.bealean.flashcardzap_api.dao;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -39,6 +38,15 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
         assertEquals(expectedId, actualId,
                 "getSubcategoryIdByName returns the expected id for a Subcategory name " +
                         "including all allowed special characters");
+    }
+
+    @Test
+    void getSubcategoryIdByName_spaceAroundName_returnsIdForTrimmedName() {
+        String subcategoryName = " JUnit Subcategory ";
+        Long expectedId = addSubcategory(subcategoryName.trim());
+        Long actualId = subcategoryDAO.getSubcategoryIdByName(subcategoryName);
+        assertEquals(expectedId, actualId,
+                "getSubcategoryIdByName returns the id for the trimmed Subcategory name");
     }
 
     @Test
@@ -270,7 +278,7 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
         Long testAreaId = jdbcTemplate.queryForObject(sql, Long.class, "JUnit Dev");
         sql = "SELECT id FROM categories WHERE category_name = ?";
         Long testCategoryId = jdbcTemplate.queryForObject(sql, Long.class, "JUnit SQL");
-        Long subcategoryId = addSubcategory("JUnit DDL");
+        long subcategoryId = addSubcategory("JUnit DDL");
         addMapping(testAreaId, testCategoryId, subcategoryId);
 
         // Add a mapping of the test Area and Category with a null Subcategory
@@ -304,6 +312,20 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
     }
 
     @Test
+    void getSubcategories_extraSpaceAroundAreaAndCategoryNames_returnsSubcategoriesForTrimmedNames() {
+        String untrimmedArea = " JUnit Dev ";
+        String untrimmedCategory = " JUnit SQL ";
+        addAreaCategoryAndSubcategoryAndMap(untrimmedArea.trim(), untrimmedCategory.trim(), "JUnit DML");
+
+        List<String> expectedSubcategories = new ArrayList<>();
+        expectedSubcategories.add("JUnit DML");
+        List<String> actualSubcategories = subcategoryDAO.getSubcategories(untrimmedArea, untrimmedCategory);
+        assertEquals(expectedSubcategories, actualSubcategories,
+                "getSubcategories with extra space around Area and Category names " +
+                        "returns subcategory for trimmed Area and Category names");
+    }
+
+    @Test
     void getSubcategories_AreaWithNoSubcategories_returnsEmptyList() {
         String areaName = "JUnit Area";
         addArea(areaName);
@@ -333,6 +355,14 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
         String expectedSubcategoryName = "JUnit Sub-1_90 zZ~A.";
         String actualSubcategoryName = addSubcategoryAndReturnNameFromDatabase(expectedSubcategoryName);
         assertEquals(expectedSubcategoryName, actualSubcategoryName, "addSubcategory adds Subcategory name with all allowed special characters to database");
+    }
+
+    @Test
+    void addSubcategory_spaceAroundName_trimmedNameAddedToDatabase() {
+        String untrimmedSubcategoryName = " JUnit Subcategory ";
+        String actualSubcategoryName = addSubcategoryAndReturnNameFromDatabase(untrimmedSubcategoryName);
+        String expectedSubcategoryName = untrimmedSubcategoryName.trim();
+        assertEquals(expectedSubcategoryName, actualSubcategoryName, "addSubcategory adds trimmed Subcategory name to database");
     }
 
     @Test

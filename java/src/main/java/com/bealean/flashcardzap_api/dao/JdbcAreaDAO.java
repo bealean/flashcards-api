@@ -1,5 +1,6 @@
 package com.bealean.flashcardzap_api.dao;
 
+import com.bealean.flashcardzap_api.utility.InputScrubber;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,8 +23,9 @@ public class JdbcAreaDAO implements AreaDAO {
 
     @Override
     public long addArea(String areaName) {
-        /* Don't attempt to add a null or empty name */
-        if (areaName == null || areaName.trim().equals("")) {
+        areaName = InputScrubber.trimStringAndSetEmptyToNull(areaName);
+        /* Don't attempt to add a null name */
+        if (areaName == null) {
             return -1L;
         }
 
@@ -56,7 +58,8 @@ public class JdbcAreaDAO implements AreaDAO {
 
         /* Don't try to get id of null or empty String area names,
            even if they exist */
-        if (areaName != null && !areaName.trim().equals("")) {
+        areaName = InputScrubber.trimStringAndSetEmptyToNull(areaName);
+        if (areaName != null) {
             try {
                 areaId = Objects.requireNonNullElse(jdbcTemplate.queryForObject(sql, Long.class, areaName), -1L);
             } catch (DataAccessException e) {

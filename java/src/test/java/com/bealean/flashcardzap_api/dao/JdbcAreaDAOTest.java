@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class JdbcAreaDAOTest extends JdbcDAOTest {
@@ -37,6 +39,14 @@ class JdbcAreaDAOTest extends JdbcDAOTest {
         String expectedAreaName = "Area-1_90 zZ~A.";
         String actualAreaName = callAddAreaAndQueryDatabaseForAddedName(expectedAreaName);
         assertEquals(expectedAreaName, actualAreaName, "addArea adds Area name with all allowed special characters to database");
+    }
+
+    @Test
+    void addArea_spaceAroundName_trimmedAreaNameAddedToDatabase() {
+        String areaName = " JUnitArea1 ";
+        long expectedAreaId = areaDAO.addArea(areaName);
+        long actualAreaId = getAreaIdByName(areaName.trim());
+        assertEquals(expectedAreaId, actualAreaId, "addArea trims space around Area name before adding to database");
     }
 
     @Test
@@ -96,6 +106,15 @@ class JdbcAreaDAOTest extends JdbcDAOTest {
         long expectedId = addArea(areaName);
         long actualId = areaDAO.getAreaIdByName(areaName);
         assertEquals(expectedId, actualId, "getAreaIdByName returns the expected id for an Area name including all allowed special characters");
+    }
+
+    @Test
+    void getAreaIdByName_nameSurroundedBySpace_returnsIdOfTrimmedName() {
+        String trimmedAreaName = "JUnitTest";
+        String untrimmedAreaName = " JUnitTest ";
+        long expectedId = addArea(trimmedAreaName);
+        long actualId = areaDAO.getAreaIdByName(untrimmedAreaName);
+        assertEquals(expectedId, actualId, "getAreaIdByName called with a name surrounded by space returns the id for the trimmed name");
     }
 
     @Test
