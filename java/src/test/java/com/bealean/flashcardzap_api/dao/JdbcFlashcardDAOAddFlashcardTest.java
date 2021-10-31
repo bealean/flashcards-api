@@ -508,13 +508,6 @@ class JdbcFlashcardDAOAddFlashcardTest extends JdbcDAOTest {
         return flashcard;
     }
 
-    Flashcard getCardWithRequiredFields() {
-        Flashcard flashcard = new Flashcard();
-        flashcard.setFront("test");
-        flashcard.setBack("test");
-        return flashcard;
-    }
-
     Flashcard getCardWithAllUserDefinedFields() {
         Flashcard flashcard = getCardWithRequiredFields();
         String expectedAreaName = "JUnit Area";

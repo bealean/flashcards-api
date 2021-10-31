@@ -118,4 +118,11 @@ public abstract class JdbcDAOTest {
         return flashcard;
     }
 
+    Flashcard getCardWithRequiredFields() {
+        Flashcard flashcard = new Flashcard();
+        flashcard.setFront("test");
+        flashcard.setBack("test");
+        return flashcard;
+    }
+
 }
