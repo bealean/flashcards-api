@@ -69,7 +69,7 @@ class JdbcCategoryDAOTest extends JdbcDAOTest {
                 actualCategoryList.add(categoryName);
             }
         }
-        assertEquals(expectedCategoryList, actualCategoryList, "getCategoriesForArea for 'all' Areas returns " +
+        assertIterableEquals(expectedCategoryList, actualCategoryList, "getCategoriesForArea for 'all' Areas returns " +
                 "all added test Categories in ascending Alphabetical order by Category name");
     }
 
@@ -120,7 +120,7 @@ class JdbcCategoryDAOTest extends JdbcDAOTest {
         expectedCategoryList.add("JavaJUnit");
         expectedCategoryList.add("SQLJUnit");
         List<String> actualCategoryList = categoryDAO.getCategoriesForArea("JUnitDev");
-        assertEquals(expectedCategoryList, actualCategoryList, "getCategoriesForArea for a specific Area returns " +
+        assertIterableEquals(expectedCategoryList, actualCategoryList, "getCategoriesForArea for a specific Area returns " +
                 "the distinct Categories for that area in ascending Alphabetical order by Category name");
     }
 

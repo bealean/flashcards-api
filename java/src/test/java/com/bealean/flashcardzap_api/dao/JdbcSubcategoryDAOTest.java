@@ -8,8 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JdbcSubcategoryDAOTest extends JdbcDAOTest {
 
@@ -181,7 +180,7 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
             expectedSubcategories.add(result.getString("subcategory_name"));
         }
         List<String> actualSubcategories = subcategoryDAO.getSubcategories("all", "all");
-        assertEquals(expectedSubcategories, actualSubcategories,
+        assertIterableEquals(expectedSubcategories, actualSubcategories,
                 "getSubcategories for All Areas and Categories " +
                         "returns all distinct Subcategories ordered alphabetically by name");
     }
@@ -221,7 +220,7 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
         expectedSubcategories.add("JUnit DDL");
         expectedSubcategories.add("JUnit DML");
         List<String> actualSubcategories = subcategoryDAO.getSubcategories("all", "JUnit SQL");
-        assertEquals(expectedSubcategories, actualSubcategories,
+        assertIterableEquals(expectedSubcategories, actualSubcategories,
                 "getSubcategories with specific Category and all Areas " +
                         "returns all distinct Subcategories in ascending order by name " +
                         "for only the specified Category");
@@ -263,7 +262,7 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
         expectedSubcategories.add("JUnit DDL");
         expectedSubcategories.add("JUnit Syntax");
         List<String> actualSubcategories = subcategoryDAO.getSubcategories("JUnit Dev", "all");
-        assertEquals(expectedSubcategories, actualSubcategories,
+        assertIterableEquals(expectedSubcategories, actualSubcategories,
                 "getSubcategories with specific Area and all Categories " +
                         "returns all distinct Subcategories in ascending order by name " +
                         "for only the specified Area");
@@ -305,7 +304,7 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
         expectedSubcategories.add("JUnit DDL");
         expectedSubcategories.add("JUnit DML");
         List<String> actualSubcategories = subcategoryDAO.getSubcategories("JUnit Dev", "JUnit SQL");
-        assertEquals(expectedSubcategories, actualSubcategories,
+        assertIterableEquals(expectedSubcategories, actualSubcategories,
                 "getSubcategories with specific Area and Category " +
                         "returns all distinct Subcategories in ascending order by name " +
                         "for only the specified Area and Category");
@@ -320,7 +319,7 @@ class JdbcSubcategoryDAOTest extends JdbcDAOTest {
         List<String> expectedSubcategories = new ArrayList<>();
         expectedSubcategories.add("JUnit DML");
         List<String> actualSubcategories = subcategoryDAO.getSubcategories(untrimmedArea, untrimmedCategory);
-        assertEquals(expectedSubcategories, actualSubcategories,
+        assertIterableEquals(expectedSubcategories, actualSubcategories,
                 "getSubcategories with extra space around Area and Category names " +
                         "returns subcategory for trimmed Area and Category names");
     }

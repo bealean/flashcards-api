@@ -2,13 +2,14 @@ package com.bealean.flashcardzap_api.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+
 
 class JdbcAreaDAOTest extends JdbcDAOTest {
 
@@ -54,10 +55,14 @@ class JdbcAreaDAOTest extends JdbcDAOTest {
         String areaName = "JUnit Test Area";
         long expectedAreaId = areaDAO.addArea(areaName);
         long actualAreaId = areaDAO.addArea(areaName);
-        assertEquals(expectedAreaId, actualAreaId, "addArea returns existing ID when Area already exists");
+
         String sql = "SELECT count(area_name) FROM areas WHERE area_name = ?";
         Integer actualAreaCount = jdbcTemplate.queryForObject(sql, Integer.class, areaName);
-        assertEquals(Integer.valueOf(1), actualAreaCount, "addArea does not add a duplicate Area to the database");
+
+        assertAll("addArea returns existing ID when Area already exists and does not add a duplicate Area to the database",
+                () -> assertEquals(expectedAreaId, actualAreaId, "addArea returns existing ID when Area already exists"),
+                () -> assertEquals(Integer.valueOf(1), actualAreaCount, "addArea does not add a duplicate Area to the database")
+        );
     }
 
     @Test
@@ -167,7 +172,7 @@ class JdbcAreaDAOTest extends JdbcDAOTest {
             expectedAreas.add(result.getString("area_name"));
         }
         List<String> actualAreas = areaDAO.getAreas();
-        assertEquals(expectedAreas, actualAreas,
+        assertIterableEquals(expectedAreas, actualAreas,
                 "getAreas with Areas added returns list of Areas " +
                         "in ascending order by name");
     }

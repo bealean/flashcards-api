@@ -60,10 +60,21 @@ Java API uses:
 
 A Test Driven Development approach was used for this project. The tests for this project use JUnit 5. 
 
+##### DAO Tests
 - An abstract JdbcDAOTest class includes configuration properties and methods, and helper methods used by multiple test classes that extend it.
 - SingleConnectionDataSource is used to test data modification methods without committing the changes.
 - The @Value annotation is used in the abstract JdbcDAOTest class to read the database properties from the application.properties file of the main application.
 - Because @Value is not supported on static fields and the @BeforeAll method needs to be static, the Data Source is configured on the first run of the @BeforeEach method with a static boolean variable keeping track of whether the Data Source has already been configured. 
 - The assertThrows assertion is used to check that the expected type of exceptions are thrown with the expected status and message.
-- Spring's MockMvc is used to send requests to the REST Controller to test that the database updates in methods with the @Transactional annotation are fully rolled back if the specified exception type is thrown.
-- An uninitialized MockBean of LocalValidatorFactoryBean is used in tests where needed to disable Bean Validation in order to send invalid values to force exceptions.
+
+##### REST Controller Tests
+- Tests for REST Controller methods use Mockito to stub method calls to mocked DAO objects in order to specify what is returned.
+- MockMvc is used to send requests to the REST Controller and verify the response.
+- Custom JUnit assertion messages are specified for the MockMvc tests in this project. The TEnmo project has examples of using the MockMvcResultMatchers assertions and default messages.
+- The @WebMvcTest annotation is used to instantiate only the web layer and the configuration needed for MVC tests.
+
+##### Transactional Rollback Tests
+- Transactional rollback is tested by calling the transactional method externally through the REST Controller using MockMvc requests.
+- An uninitialized MockBean of LocalValidatorFactoryBean is used to disable Bean Validation in order to send invalid values to force exceptions.
+- The @SpringBootTest and @AutoConfigureMockMvc annotations are used, rather than @WebMvcTest, because the tests require the full application context to be loaded.  
+

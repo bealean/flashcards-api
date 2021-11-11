@@ -21,4 +21,11 @@ public class FlashcardController {
         return flashcardDAO.addFlashcard(flashcard);
     }
 
+    @RequestMapping(path = "/get-next-card", method = RequestMethod.GET)
+    public Flashcard getNextFlashcard(@RequestParam(required = false) String area,
+                                      @RequestParam(required = false) String category,
+                                      @RequestParam(required = false) String subcategory) {
+        return flashcardDAO.getNext(area, category, subcategory);
+    }
+
 }
