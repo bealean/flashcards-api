@@ -100,4 +100,26 @@ public class Flashcard {
                 ", lastViewed='" + lastViewed + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof Flashcard)) {
+            return false;
+        }
+
+        Flashcard flashcard = (Flashcard) o;
+
+        return (id == null && flashcard.getId() == null) || (id != null && id.equals(flashcard.getId())) &&
+                (front == null && flashcard.getFront() == null) || (front != null && front.equals(flashcard.getFront())) &&
+                (back == null && flashcard.getBack() == null) || (back != null && back.equals(flashcard.getBack())) &&
+                (area == null && flashcard.getArea() == null) || (area != null && area.equals(flashcard.getArea())) &&
+                (category == null && flashcard.getCategory() == null) || (category != null && category.equals(flashcard.getCategory())) &&
+                (subcategory == null && flashcard.getSubcategory() == null) || (subcategory != null && subcategory.equals(flashcard.getSubcategory())) &&
+                (lastViewed == null && flashcard.getLastViewed() == null) || (lastViewed != null && lastViewed.equals(flashcard.getLastViewed()));
+
+    }
 }

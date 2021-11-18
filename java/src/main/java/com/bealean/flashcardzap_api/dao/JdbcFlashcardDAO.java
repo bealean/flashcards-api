@@ -117,12 +117,15 @@ public class JdbcFlashcardDAO implements FlashcardDAO {
         try {
             id = namedParameterJdbcTemplate.queryForObject(sql, params, Long.class);
             if (id != null && id >= 0) {
-                return queryForCardByIdAndMap(id);
+                return getCardById(id);
             }
         } catch (DataAccessException e) {
             System.out.println("Caught Exception: " + e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Failure checking if card already exists. Card not added.");
+        } catch (ResponseStatusException re) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Card with matching details exists, but failed to retrieve card from database");
         }
 
         /* If no area, category, or subcategory is specified, add card without them. */
@@ -169,6 +172,44 @@ public class JdbcFlashcardDAO implements FlashcardDAO {
     }
 
     @Override
+    public Flashcard getCardById(Long id) {
+        if (id == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Id cannot be null");
+        }
+
+        String sql = "SELECT f.id AS \"id\", front, back, a.area_name AS \"area\", c.category_name AS \"category\", s.subcategory_name " +
+                "AS \"subcategory\", fv.view_timestamp AS \"lastViewed\" FROM flashcards f " +
+                "LEFT OUTER JOIN areas a ON f.area_id = a.id " +
+                "LEFT OUTER JOIN categories c ON f.category_id = c.id " +
+                "LEFT OUTER JOIN subcategories s ON f.subcategory_id = s.id " +
+                "LEFT OUTER JOIN flashcard_views fv ON f.id = fv.flashcard_id " +
+                "WHERE f.id = ?";
+        try {
+            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
+            Flashcard flashcard = new Flashcard();
+            if (result.next()) {
+                flashcard.setId(result.getLong("id"));
+                flashcard.setFront(result.getString("front"));
+                flashcard.setBack(result.getString("back"));
+                flashcard.setArea(result.getString("area"));
+                flashcard.setCategory(result.getString("category"));
+                flashcard.setSubcategory(result.getString("subcategory"));
+                flashcard.setLastViewed(result.getTimestamp("lastViewed"));
+            }
+            if (flashcard.getId() == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "No cards exist with requested Id");
+            } else {
+                return flashcard;
+            }
+        } catch (DataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Exception retrieving card from database by Id");
+        }
+    }
+
+    @Override
     public Flashcard getNext(String area, String category, String subcategory) {
         Map<String, String> params = new HashMap<>();
         params.put("area_name", area);
@@ -202,7 +243,7 @@ public class JdbcFlashcardDAO implements FlashcardDAO {
             flashcardId = namedParameterJdbcTemplate.queryForObject(sql, params, Long.class);
             if (flashcardId != null && flashcardId >= 0) {
                 flashcardViewsDAO.recordView(flashcardId);
-                return queryForCardByIdAndMap(flashcardId);
+                return getCardById(flashcardId);
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "No cards available for requested Area, Category, and Subcategory combination. " +
@@ -212,6 +253,13 @@ public class JdbcFlashcardDAO implements FlashcardDAO {
             System.out.println("Caught Exception: " + e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Exception getting next card from database.");
+        } catch (ResponseStatusException re) {
+            if (re.getRawStatusCode() == 404) {
+                throw re;
+            } else {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Failure retrieving card details from database");
+            }
         }
     }
 
@@ -219,33 +267,15 @@ public class JdbcFlashcardDAO implements FlashcardDAO {
         String sql = "INSERT INTO flashcards (front, back, area_id, category_id, subcategory_id) VALUES (?,?,?,?,?) RETURNING id";
         try {
             Long id = jdbcTemplate.queryForObject(sql, Long.class, front, back, areaId, categoryId, subcategoryId);
-            return queryForCardByIdAndMap(id);
+            return getCardById(id);
         } catch (DataAccessException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Flashcard failed to be added.");
+        } catch (ResponseStatusException re) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Flashcard added, but failed to be retrieved from database");
         }
     }
 
-    private Flashcard queryForCardByIdAndMap(Long id) {
-        String sql = "SELECT f.id AS \"id\", front, back, a.area_name AS \"area\", c.category_name AS \"category\", s.subcategory_name " +
-                "AS \"subcategory\", fv.view_timestamp AS \"lastViewed\" FROM flashcards f " +
-                "LEFT OUTER JOIN areas a ON f.area_id = a.id " +
-                "LEFT OUTER JOIN categories c ON f.category_id = c.id " +
-                "LEFT OUTER JOIN subcategories s ON f.subcategory_id = s.id " +
-                "LEFT OUTER JOIN flashcard_views fv ON f.id = fv.flashcard_id " +
-                "WHERE f.id = ?";
-        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
-        Flashcard flashcard = new Flashcard();
-        if (result.next()) {
-            flashcard.setId(result.getLong("id"));
-            flashcard.setFront(result.getString("front"));
-            flashcard.setBack(result.getString("back"));
-            flashcard.setArea(result.getString("area"));
-            flashcard.setCategory(result.getString("category"));
-            flashcard.setSubcategory(result.getString("subcategory"));
-            flashcard.setLastViewed(result.getTimestamp("lastViewed"));
-        }
-        return flashcard;
-    }
 }

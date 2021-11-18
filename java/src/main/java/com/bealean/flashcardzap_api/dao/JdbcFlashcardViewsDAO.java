@@ -18,7 +18,7 @@ public class JdbcFlashcardViewsDAO implements FlashcardViewsDAO {
     @Override
     public int recordView(Long id) {
         /* Check if flashcard exists with provided ID before attempting to record
-         * a view for it. TODO: Update to use Flashcard get method, when available. */
+         * a view for it. */
         String cardSql = "SELECT COUNT(*) FROM flashcards WHERE id = ?";
 
         /* Check if card has been viewed or not. */
@@ -27,8 +27,8 @@ public class JdbcFlashcardViewsDAO implements FlashcardViewsDAO {
 
         String recordViewSQL = "";
         try {
-            Integer cardCount = jdbcTemplate.queryForObject(cardSql, Integer.class, id);
-            if (cardCount == null || !cardCount.equals(1)) {
+            Integer count = jdbcTemplate.queryForObject(cardSql, Integer.class, id);
+            if (count == null || !count.equals(1)) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Provided Flashcard ID not found. View not recorded for Flashcard.");
             }
@@ -36,7 +36,7 @@ public class JdbcFlashcardViewsDAO implements FlashcardViewsDAO {
             if (viewCount != null && viewCount.equals(0)) {
                 /* Used clock_timestamp() instead of now() because now() is the timestamp for the
                  * start of the transaction, rather than the current time and tests can have
-                 * multiple statements in the same transaction (e.g. an update test may do insert
+                 * multiple statements in the same transaction (e.g. and update test may do insert
                  * first, then update, and then compare timestamps). */
                 recordViewSQL = "INSERT INTO flashcard_last_view (flashcard_id, view_timestamp) VALUES (?, clock_timestamp())";
             } else if (viewCount != null && viewCount.compareTo(0) > 0) {
