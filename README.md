@@ -78,3 +78,6 @@ A Test Driven Development approach was used for this project. The tests for this
 - An uninitialized MockBean of LocalValidatorFactoryBean is used to disable Bean Validation in order to send invalid values to force exceptions.
 - The @SpringBootTest and @AutoConfigureMockMvc annotations are used, rather than @WebMvcTest, because the tests require the full application context to be loaded.  
 
+## Setup
+- Create a PostgreSQL database and run the schema.sql script, from the database folder of this project, against the database.
+- In the resources folder of this project, create an application.properties file, based on Example_application.properties, and specify the datasource connection properties.
