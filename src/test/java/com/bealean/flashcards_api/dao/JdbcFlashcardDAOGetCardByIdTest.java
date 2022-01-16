@@ -1,6 +1,6 @@
-package com.bealean.flashcardzap_api.dao;
+package com.bealean.flashcards_api.dao;
 
-import com.bealean.flashcardzap_api.model.Flashcard;
+import com.bealean.flashcards_api.model.Flashcard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

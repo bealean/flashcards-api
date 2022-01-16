@@ -1,6 +1,6 @@
-package com.bealean.flashcardzap_api.utility;
+package com.bealean.flashcards_api.utility;
 
-import com.bealean.flashcardzap_api.model.Flashcard;
+import com.bealean.flashcards_api.model.Flashcard;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

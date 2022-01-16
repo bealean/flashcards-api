@@ -1,7 +1,7 @@
-package com.bealean.flashcardzap_api.dao;
+package com.bealean.flashcards_api.dao;
 
-import com.bealean.flashcardzap_api.FlashcardZapApiApplication;
-import com.bealean.flashcardzap_api.model.Flashcard;
+import com.bealean.flashcards_api.FlashcardsApiApplication;
+import com.bealean.flashcards_api.model.Flashcard;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import java.sql.SQLException;
 import java.util.Objects;
 
-@SpringBootTest(classes = FlashcardZapApiApplication.class)
+@SpringBootTest(classes = FlashcardsApiApplication.class)
 public abstract class JdbcDAOTest {
 
     @Value("${spring.datasource.url}")

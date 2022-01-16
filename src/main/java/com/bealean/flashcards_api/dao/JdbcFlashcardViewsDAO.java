@@ -1,4 +1,4 @@
-package com.bealean.flashcardzap_api.dao;
+package com.bealean.flashcards_api.dao;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;

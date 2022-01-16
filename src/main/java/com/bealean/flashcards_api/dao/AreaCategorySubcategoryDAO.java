@@ -1,4 +1,4 @@
-package com.bealean.flashcardzap_api.dao;
+package com.bealean.flashcards_api.dao;
 
 public interface AreaCategorySubcategoryDAO {
     boolean doesMappingExist(Long areaId, Long categoryId, Long subcategoryId);

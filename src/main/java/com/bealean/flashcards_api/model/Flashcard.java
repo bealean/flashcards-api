@@ -1,6 +1,6 @@
-package com.bealean.flashcardzap_api.model;
+package com.bealean.flashcards_api.model;
 
-import com.bealean.flashcardzap_api.utility.InputScrubber;
+import com.bealean.flashcards_api.utility.InputScrubber;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;

@@ -1,7 +1,7 @@
-package com.bealean.flashcardzap_api.controller;
+package com.bealean.flashcards_api.controller;
 
-import com.bealean.flashcardzap_api.dao.FlashcardDAO;
-import com.bealean.flashcardzap_api.model.Flashcard;
+import com.bealean.flashcards_api.dao.FlashcardDAO;
+import com.bealean.flashcards_api.model.Flashcard;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

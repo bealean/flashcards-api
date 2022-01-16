@@ -1,7 +1,7 @@
-package com.bealean.flashcardzap_api.controller;
+package com.bealean.flashcards_api.controller;
 
-import com.bealean.flashcardzap_api.FlashcardZapApiApplication;
-import com.bealean.flashcardzap_api.model.Flashcard;
+import com.bealean.flashcards_api.FlashcardsApiApplication;
+import com.bealean.flashcards_api.model.Flashcard;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@SpringBootTest(classes = FlashcardZapApiApplication.class)
+@SpringBootTest(classes = FlashcardsApiApplication.class)
 @AutoConfigureMockMvc
 class FlashcardControllerRollbackTest {
 

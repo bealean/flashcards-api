@@ -1,4 +1,4 @@
-package com.bealean.flashcardzap_api.utility;
+package com.bealean.flashcards_api.utility;
 
 public abstract class InputScrubber {
 

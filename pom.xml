@@ -8,11 +8,11 @@
 		<version>2.6.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.bealean.flashcardzap_api</groupId>
-	<artifactId>flashcardzap-api</artifactId>
+	<groupId>com.bealean.flashcards_api</groupId>
+	<artifactId>flashcards-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>flashcardzap-api</name>
-	<description>FlashcardZap API</description>
+	<name>flashcards-api</name>
+	<description>Flashcards API</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

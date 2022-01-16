@@ -1,6 +1,6 @@
-package com.bealean.flashcardzap_api.dao;
+package com.bealean.flashcards_api.dao;
 
-import com.bealean.flashcardzap_api.model.Flashcard;
+import com.bealean.flashcards_api.model.Flashcard;
 
 public interface FlashcardDAO {
     Flashcard addFlashcard(Flashcard flashcard);

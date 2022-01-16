@@ -1,6 +1,6 @@
-package com.bealean.flashcardzap_api.dao;
+package com.bealean.flashcards_api.dao;
 
-import com.bealean.flashcardzap_api.utility.InputScrubber;
+import com.bealean.flashcards_api.utility.InputScrubber;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
